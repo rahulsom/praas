@@ -53,6 +53,10 @@ grails.project.dependency.resolution = {
         // runtime 'mysql:mysql-connector-java:5.1.29'
         // runtime 'org.postgresql:postgresql:9.3-1101-jdbc41'
         test "org.grails:grails-datastore-test-support:1.0-grails-2.4"
+        runtime 'javax:javaee-api:6.0'
+        runtime "com.codahale.metrics:metrics-jvm:3.0.1"
+        runtime "com.codahale.metrics:metrics-ehcache:3.0.1"
+
     }
 
     plugins {
@@ -65,6 +69,9 @@ grails.project.dependency.resolution = {
         compile ":asset-pipeline:1.9.6"
         compile ":console:1.4.4"
         compile ':spring-security-core:2.0-RC4'
+        runtime ":elasticsearch:0.0.3.3"
+        compile ":swaggydoc:0.1"
+        compile ":yammer-metrics:3.0.1-2"
 
         // plugins needed at runtime but not for compilation
         runtime ":hibernate4:4.3.5.5" // or ":hibernate:3.6.10.17"
@@ -73,8 +80,8 @@ grails.project.dependency.resolution = {
 
         // Uncomment these to enable additional asset-pipeline capabilities
         //compile ":sass-asset-pipeline:1.9.0"
-        compile ":less-asset-pipeline:1.10.0"
-        compile ":coffee-asset-pipeline:1.8.0"
+        // compile ":less-asset-pipeline:1.10.0"
+        // compile ":coffee-asset-pipeline:1.8.0"
         //compile ":handlebars-asset-pipeline:1.3.0.3"
 
         provided ":codenarc:0.21"

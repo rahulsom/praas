@@ -14,7 +14,7 @@
 grails.project.groupId = appName // change this to alter the default package name and Maven publishing destination
 
 // The ACCEPT header will not be used for content negotiation for user agents containing the following strings (defaults to the 4 major rendering engines)
-grails.mime.disable.accept.header.userAgents = ['Gecko', 'WebKit', 'Presto', 'Trident']
+grails.mime.disable.accept.header.userAgents = [/*'Gecko', 'WebKit', 'Presto', 'Trident'*/]
 grails.mime.types = [ // the first one is the default format
     all:           '*/*', // 'all' maps to '*' or the first available format in withFormat
     atom:          'application/atom+xml',
@@ -117,6 +117,8 @@ log4j.main = {
 }
 
 
+grails.plugin.springsecurity.password.algorithm = 'bcrypt'
+
 // Added by the Spring Security Core plugin:
 grails.plugin.springsecurity.userLookup.userDomainClassName = 'com.github.rahulsom.praas.auth.User'
 grails.plugin.springsecurity.userLookup.authorityJoinClassName = 'com.github.rahulsom.praas.auth.UserRole'
@@ -129,6 +131,34 @@ grails.plugin.springsecurity.controllerAnnotations.staticRules = [
 	'/**/js/**':                      ['permitAll'],
 	'/**/css/**':                     ['permitAll'],
 	'/**/images/**':                  ['permitAll'],
+  '/console/**'    : ['ROLE_ADMIN'],
+  '/plugins/**'    : ['ROLE_ADMIN'],
+  '/metrics/**'      : ['ROLE_ADMIN'],
+  '/**/api/**'     : ['permitAll'],
 	'/**/favicon.ico':                ['permitAll']
 ]
 
+elasticSearch {
+  datastoreImpl = 'hibernateDatastore'
+  disableAutoIndex = true
+  bulkIndexOnStartup = false
+}
+
+environments {
+  development {
+    /**
+     * Possible values : "local", "node", "dataNode", "transport"
+     * If set to null, "node" mode is used by default.
+     */
+    elasticSearch.client.mode = 'local'
+  }
+  test {
+    elasticSearch {
+      client.mode = 'local'
+      index.store.type = 'memory' // store local node in memory and not on disk
+    }
+  }
+  production {
+    elasticSearch.client.mode = 'node'
+  }
+}
