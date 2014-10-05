@@ -1,3 +1,5 @@
+import javax.servlet.http.HttpServletRequest
+
 // locations to search for config files that get merged into the main config;
 // config files can be ConfigSlurper scripts, Java properties files, or classes
 // in the classpath in ConfigSlurper format
@@ -137,6 +139,30 @@ grails.plugin.springsecurity.controllerAnnotations.staticRules = [
   '/**/api/**'     : ['permitAll'],
 	'/**/favicon.ico':                ['permitAll']
 ]
+
+grails.plugin.springsecurity.ajaxCheckClosure = { HttpServletRequest request ->
+    String urlFormat = request.getParameter('format') ?: request.requestURL.tokenize('.')[-1]
+    if (urlFormat in ['json', 'xml', 'hal']) {
+        return true
+    }
+    def accept = request.getHeader('Accept')
+
+    def weightedHeaders = accept.tokenize(',').collectEntries { it.tokenize(';') }.
+            collectEntries {k,v -> [ k,(v?:"q=1.0").replace('q=','').toDouble() ]}.
+            sort { - it.value }*.key
+
+    println weightedHeaders
+    for (int i = 0; i < weightedHeaders.size(); i++) {
+        def value = weightedHeaders[i]
+        if (value.contains('html')) {
+            return false
+        }
+        if (value.contains('json') || value.contains('xml') || value == '*/*') {
+            return true
+        }
+    }
+    return false
+}
 
 elasticSearch {
   datastoreImpl = 'hibernateDatastore'
