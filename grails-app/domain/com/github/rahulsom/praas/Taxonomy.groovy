@@ -5,8 +5,9 @@ package com.github.rahulsom.praas
  */
 class Taxonomy {
     String switchCode
-    String code
+    String _code
     String group
+
     static constraints = {
     }
 }
