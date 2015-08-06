@@ -12,7 +12,6 @@ class Provider {
         practiceLocation component: true
 
         identifiers reference: true
-        licenses reference: true
         taxonomies reference: true
 
     }
@@ -50,7 +49,6 @@ class Provider {
 
     static hasMany = [
             identifiers: Identifier,
-            licenses: License,
             taxonomies: Taxonomy
     ]
 

@@ -9,8 +9,19 @@ class Taxonomy {
 
     String switchCode
     String codeName
-    String groupName
+    String licenseNumber
+    String state
 
     static constraints = {
+        codeName blank: false
+    }
+
+    static belongsTo = [
+            provider: Provider
+    ]
+
+    @Override
+    public String toString() {
+        "(${switchCode}) - ${codeName} - ${licenseNumber}@${state}"
     }
 }

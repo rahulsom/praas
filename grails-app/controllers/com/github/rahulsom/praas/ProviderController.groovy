@@ -34,7 +34,7 @@ class ProviderController {
         params.max = Math.min(params.int('max') ?: 10, 100)
         if (params.q) {
             def search = Provider.search(params.q, params)
-            respond search.searchResults, model: [providerInstanceCount: search.total]
+            respond search.searchResults.collect {Provider.get(it.id)}, model: [providerInstanceCount: search.total]
         } else {
             respond Provider.list(params), model: [providerInstanceCount: Provider.count()]
         }

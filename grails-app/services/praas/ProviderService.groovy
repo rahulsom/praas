@@ -1,9 +1,10 @@
 package praas
 
 import com.github.rahulsom.praas.Address
+import com.github.rahulsom.praas.Identifier
 import com.github.rahulsom.praas.Person
 import com.github.rahulsom.praas.Provider
-import grails.converters.JSON
+import com.github.rahulsom.praas.Taxonomy
 import org.h2.tools.Csv
 import org.hibernate.StatelessSession
 import org.hibernate.Transaction
@@ -61,6 +62,21 @@ class ProviderService {
                 'Provider $ Telephone Number'              : 'phone',
                 'Provider $ Fax Number'                    : 'fax',
         ]
+
+        def identifierMap = [
+                'Other Provider Identifier_$'          : 'identifier',
+                'Other Provider Identifier Type Code_$': 'type',
+                'Other Provider Identifier State_$'    : 'state',
+                'Other Provider Identifier Issuer_$'   : 'issuer'
+        ]
+
+        def taxonomyMap = [
+                'Healthcare Provider Taxonomy Code_$'          : 'codeName',
+                'Provider License Number_$'                    : 'licenseNumber',
+                'Provider License Number State Code_$'         : 'state',
+                'Healthcare Provider Primary Taxonomy Switch_$': 'switchCode'
+        ]
+
         int batchSize = 0
         long lastCheck = System.nanoTime()
         while (rs.next()) {
@@ -72,9 +88,25 @@ class ProviderService {
             provider.mailingAddress = fillDomainClass(Address, rs, addressMap, 'Business Mailing Address')
             provider.practiceLocation = fillDomainClass(Address, rs, addressMap, 'Business Practice Location Address')
 
-//            println(provider as JSON)
+            provider.save()
+
+            for (int i = 1; i < 38; i ++) {
+                def identifier = fillDomainClass(Identifier, rs, identifierMap, i.toString())
+                identifier.provider = provider
+                if (identifier.validate()) {
+                    identifier.save()
+                }
+            }
+            for (int i = 1; i < 16; i ++) {
+                def taxonomy = fillDomainClass(Taxonomy, rs, taxonomyMap, i.toString())
+                taxonomy.provider = provider
+                if (taxonomy.validate()) {
+                    taxonomy.save()
+                }
+            }
+
             provider.save(flush: ++batchSize % 200 == 0)
-            // session.insert(provider)
+
             if (++batchSize % 200 == 0) {
                 long newCheck = System.nanoTime()
                 println "${batchSize} providers down in ${(newCheck - lastCheck) / 1000000.0} ms"

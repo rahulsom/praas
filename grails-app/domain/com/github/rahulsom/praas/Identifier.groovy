@@ -11,6 +11,17 @@ class Identifier {
     String state
     String issuer
     String type
+
     static constraints = {
+        identifier blank: false
+    }
+
+    static belongsTo = [
+            provider: Provider
+    ]
+
+    @Override
+    public String toString() {
+        "${identifier}@${state} issued by ${issuer} (${type})"
     }
 }
