@@ -20,6 +20,11 @@ class Identifier {
             provider: Provider
     ]
 
+    static mapping = {
+        provider index: 'idx_identifier_provider_id'
+    }
+
+
     @Override
     public String toString() {
         "${identifier}@${state} issued by ${issuer} (${type})"

@@ -20,6 +20,10 @@ class Taxonomy {
             provider: Provider
     ]
 
+    static mapping = {
+        provider index: 'idx_taxonomy_provider_id'
+    }
+
     @Override
     public String toString() {
         "(${switchCode}) - ${codeName} - ${licenseNumber}@${state}"
