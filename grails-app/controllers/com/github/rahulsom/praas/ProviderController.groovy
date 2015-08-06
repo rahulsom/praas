@@ -6,11 +6,20 @@ import com.wordnik.swagger.annotations.*
 import grails.converters.JSON
 import grails.converters.XML
 import grails.plugin.springsecurity.annotation.Secured
+import grails.rest.render.Renderer
 import grails.transaction.Transactional
+import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
+import org.codehaus.groovy.grails.web.mime.MimeType
+import org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes
 import org.grails.plugins.metrics.groovy.Timed
+import org.grails.plugins.web.rest.render.DefaultRendererRegistry
+import org.grails.plugins.web.rest.render.ServletRenderContext
 import org.h2.tools.Csv
 import org.hibernate.StatelessSession
 import org.hibernate.Transaction
+import org.springframework.http.HttpStatus
+import org.springframework.validation.BeanPropertyBindingResult
+import org.springframework.validation.Errors
 
 import java.sql.ResultSet
 import java.text.SimpleDateFormat
@@ -20,7 +29,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND
 @Transactional(readOnly = true)
 @Secured('ROLE_USER')
 @Api(value = "Provider", description = "Data on Providers",
-        produces = 'application/json,application/hal+json,application/xml,text/html',
+        produces = 'application/json,application/xml,text/html',
         consumes = 'application/json,application/xml,application/x-www-form-urlencoded'
 )
 class ProviderController {
@@ -32,21 +41,32 @@ class ProviderController {
     @Timed(name = 'providersearch')
     def index() {
         params.max = Math.min(params.int('max') ?: 10, 100)
+      def retval = null
         if (params.q) {
             def search = Provider.search(params.q, params)
-            respond search.searchResults.collect {Provider.get(it.id)}, model: [providerInstanceCount: search.total]
+            retval = search.searchResults.collect {Provider.get(it.id)}
         } else {
-            respond Provider.list(params), model: [providerInstanceCount: Provider.count()]
+            retval = Provider.list(params)
         }
+      withFormat {
+        json {render retval as grails.converters.deep.JSON}
+        xml {render retval as grails.converters.deep.XML}
+      }
     }
 
     @SwaggyShow
     @Timed(name = 'providershow')
     def show() {
-        respond Provider.get(params.id)
+
+      def retval = Provider.get(params.id)
+      withFormat {
+        json {render retval as grails.converters.deep.JSON}
+        xml {render retval as grails.converters.deep.XML}
+      }
+
     }
 
-    @Secured('ROLE_ADMIN')
+  @Secured('ROLE_ADMIN')
     @ApiOperation(value = "Save LOINC Codes", response = Void)
     @ApiResponses([
             @ApiResponse(code = 422, message = 'Bad Entity Received'),
