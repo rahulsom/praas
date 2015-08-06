@@ -9,7 +9,7 @@ WORKDIR /opt
 RUN wget -q http://nppes.viva-it.com/NPPES_Data_Dissemination_July_2015.zip && \
     mkdir NPI && \
     cd NPI && \
-    unzip ../NPPES_Data_Dissemination_July_2015.zip.zip && \
+    unzip ../NPPES_Data_Dissemination_July_2015.zip && \
     rm *FileHeader.csv && \
     cp *.csv small.csv
 
