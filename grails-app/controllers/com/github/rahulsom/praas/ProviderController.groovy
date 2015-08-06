@@ -2,12 +2,7 @@ package com.github.rahulsom.praas
 
 import com.github.rahulsom.swaggydoc.SwaggyList
 import com.github.rahulsom.swaggydoc.SwaggyShow
-import com.wordnik.swagger.annotations.Api
-import com.wordnik.swagger.annotations.ApiImplicitParam
-import com.wordnik.swagger.annotations.ApiImplicitParams
-import com.wordnik.swagger.annotations.ApiOperation
-import com.wordnik.swagger.annotations.ApiResponse
-import com.wordnik.swagger.annotations.ApiResponses
+import com.wordnik.swagger.annotations.*
 import grails.converters.JSON
 import grails.converters.XML
 import grails.plugin.springsecurity.annotation.Secured
@@ -30,14 +25,13 @@ import static org.springframework.http.HttpStatus.NOT_FOUND
 )
 class ProviderController {
 
-    def elasticSearchService
-    def sessionFactory
-    static allowedMethods = [save: "POST", ]
+    static allowedMethods = [save: "POST",]
+    def providerService
 
     @SwaggyList
-    @Timed(name='providersearch')
+    @Timed(name = 'providersearch')
     def index() {
-        params.max = Math.min(params.max ?: 10, 100)
+        params.max = Math.min(params.int('max') ?: 10, 100)
         if (params.q) {
             def search = Provider.search(params.q, params)
             respond search.searchResults, model: [providerInstanceCount: search.total]
@@ -47,7 +41,7 @@ class ProviderController {
     }
 
     @SwaggyShow
-    @Timed(name='providershow')
+    @Timed(name = 'providershow')
     def show() {
         respond Provider.get(params.id)
     }
@@ -59,62 +53,10 @@ class ProviderController {
     ])
     @ApiImplicitParams([
             @ApiImplicitParam(name = 'file', paramType = 'form', required = true, dataType = 'string',
-                    value="CSV File from downloaded zip. E.g. '/Users/rsom/Downloads/npidata_small.csv'"),
+                    value = "CSV File from downloaded zip. E.g. '/Users/rsom/Downloads/npidata_small.csv'"),
     ])
     def save() {
-        StatelessSession session = sessionFactory.openStatelessSession()
-        Transaction tx = session.beginTransaction()
-
-        Provider.executeUpdate('DELETE from Provider')
-
-        def rs = new Csv().read(new FileReader(params.file), null)
-        def fieldNameMap = [
-                "NPI"                                             : 'npi',
-                "Entity Type Code"                                : 'entityTypeCode',
-                "Replacement NPI"                                 : 'replacementNpi',
-                "Employer Identification Number (EIN)"            : 'ein',
-                "Last Update Date"                                : 'lastUpdateDate',
-                "NPI Deactivation Reason Code"                    : 'npiDeactivationReasonCode',
-                "NPI Deactivation Date"                           : 'npiDeactivationDate',
-                "NPI Reactivation Date"                           : 'npiReactivationDate',
-                "Is Sole Proprietor"                              : 'isSoleProprietor',
-                "Is Organization Subpart"                         : 'isOrganizationSubpart',
-                "Parent Organization LBN"                         : 'parentOrganizationLbn',
-                "Parent Organization TIN"                         : 'parentOrganizationTin',
-                "Provider Organization Name (Legal Business Name)": 'organizationName',
-                "Authorized Official Title or Position"           : 'authorizedOfficialTitle',
-                "Authorized Official Telephone Number"            : 'authorizedOfficialPhone',
-                "Provider Other Last Name Type Code"              : 'otherLastNameTypeCode',
-                "Provider Other Organization Name"                : 'otherOrganizationName',
-                "Provider Other Organization Name Type Code"      : 'otherOrganizationTypeCode'
-
-/*
-
-                Person authorizedOfficial
-                Person provider
-                Person other
-
-                Address mailingAddress
-                Address practiceLocation*/
-        ]
-        int batchSize = 0
-        long lastCheck = System.nanoTime()
-        while (rs.next()) {
-            def provider = fillDomainClass(Provider, rs, fieldNameMap)
-            // provider.save(flush: ++batchSize % 200 == 0)
-            session.insert(provider)
-            if (++batchSize %200 == 0) {
-                long newCheck = System.nanoTime()
-                println "${batchSize} providers down in ${(newCheck - lastCheck)/1000000.0} ms"
-                lastCheck = newCheck
-            }
-        }
-
-        tx.commit()
-        session.close()
-
-        elasticSearchService.unindex(Provider)
-        elasticSearchService.index(Provider)
+        providerService.loadData(params.file)
 
         withFormat {
             html {
@@ -129,30 +71,6 @@ class ProviderController {
                 render retval as XML
             }
         }
-    }
-
-    private static <T> T fillDomainClass(
-            Class<T> clazz, ResultSet rs, LinkedHashMap<String, String> fieldNameMap, String prefix = null
-    ) {
-        def object = clazz.newInstance()
-        fieldNameMap.each { String k, String v ->
-            if (prefix) {
-                k = prefix + k
-            }
-            if (object.metaClass.properties.find { it.name == v }.type.isAssignableFrom(String)) {
-                object[v] = rs.getString(k)
-            } else if (object.metaClass.properties.find { it.name == v }.type.isAssignableFrom(Integer)) {
-                object[v] = rs.getInt(k)
-            } else if (object.metaClass.properties.find { it.name == v }.type.isAssignableFrom(Date)) {
-                def strVal = rs.getString(k)
-                if (strVal) {
-                    object[v] = new SimpleDateFormat('MM/dd/yyyy').parse(strVal)
-                }
-            } else {
-                println "Unhandled field type: ${object.metaClass.properties[v].class}"
-            }
-        }
-        object
     }
 
     protected void notFound() {

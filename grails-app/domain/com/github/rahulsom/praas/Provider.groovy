@@ -2,7 +2,20 @@ package com.github.rahulsom.praas
 
 class Provider {
 
-    // static searchable = true
+    static searchable = {
+
+        authorizedOfficial component: true
+        provider component: true
+        other component: true
+
+        mailingAddress component: true
+        practiceLocation component: true
+
+        identifiers reference: true
+        licenses reference: true
+        taxonomies reference: true
+
+    }
 
     String npi
     String entityTypeCode
@@ -41,12 +54,25 @@ class Provider {
             taxonomies: Taxonomy
     ]
 
-    static embedded = [
-            'authorizedOfficial', 'other', 'provider',
-            'mailingAddress', 'practiceLocation'
-    ]
-
     static constraints = {
+        lastUpdateDate nullable: true
+        npiReactivationDate nullable: true
+        npiDeactivationDate nullable: true
 
+        provider nullable: true
+        other nullable: true
+        authorizedOfficial nullable: true
+
+        mailingAddress nullable: true
+        practiceLocation nullable: true
+    }
+
+    static mapping = {
+        provider cascade: 'all'
+        other cascade: 'all'
+        authorizedOfficial cascade: 'all'
+
+        mailingAddress cascade: 'all'
+        practiceLocation cascade: 'all'
     }
 }
