@@ -6,23 +6,8 @@ import com.wordnik.swagger.annotations.*
 import grails.converters.JSON
 import grails.converters.XML
 import grails.plugin.springsecurity.annotation.Secured
-import grails.rest.render.Renderer
 import grails.transaction.Transactional
-import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
-import org.codehaus.groovy.grails.web.mime.MimeType
-import org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes
 import org.grails.plugins.metrics.groovy.Timed
-import org.grails.plugins.web.rest.render.DefaultRendererRegistry
-import org.grails.plugins.web.rest.render.ServletRenderContext
-import org.h2.tools.Csv
-import org.hibernate.StatelessSession
-import org.hibernate.Transaction
-import org.springframework.http.HttpStatus
-import org.springframework.validation.BeanPropertyBindingResult
-import org.springframework.validation.Errors
-
-import java.sql.ResultSet
-import java.text.SimpleDateFormat
 
 import static org.springframework.http.HttpStatus.NOT_FOUND
 
