@@ -20,6 +20,10 @@ Deployment
 ----
 
 1. Docker - TODO
+```bash
+docker pull rahulsom/praas
+docker run -d -p 8080 -v /opt/praas:/opt/praas-master/data rahulsom/praas
+```
 2. Manual Deployment
   1. Download the war
   2. Deploy to a tomcat instance.
