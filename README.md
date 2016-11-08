@@ -36,6 +36,6 @@ Data Files
 | DataSet | Location | Status | Comments |
 |---------|--------|-----|-----|
 | NUCC    | [ZIP/CSV](http://www.nucc.org/index.php?option=com_content&view=article&id=107&Itemid=132) | Pending | Open Licensed by NUCC |
-| NPI     | [ZIP/CSV](http://nppes.viva-it.com/NPI_Files.html) | Pending | Open Licensed by CMS |
+| NPI     | [ZIP/CSV](http://download.cms.gov/nppes/NPI_Files.html) | Pending | Open Licensed by CMS |
 
 NUCC is required for NPI to work

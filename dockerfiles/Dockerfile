@@ -1,5 +1,4 @@
 FROM rahulsom/docker-java:7u55
-
 MAINTAINER Rahul Somasunderam
 
 RUN yum install -y tar unzip
@@ -10,12 +9,14 @@ RUN wget -q http://download.cms.gov/nppes/NPPES_Data_Dissemination_October_2016.
     mkdir NPI && \
     cd NPI && \
     unzip ../NPPES_Data_Dissemination_October_2016.zip && \
+    rm ../NPPES_Data_Dissemination_October_2016.zip && \
     rm *FileHeader.csv && \
     cp *.csv small.csv
 
 RUN source ~/.bashrc && \
     wget -q --no-check-certificate https://github.com/rahulsom/praas/archive/master.tar.gz && \
     tar xzvf master.tar.gz && \
+    rm master.tar.gz && \
     cd praas-master && \
     ./grailsw compile
 
