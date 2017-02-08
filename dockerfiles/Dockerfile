@@ -14,6 +14,4 @@ RUN source ~/.bashrc && \
 
 EXPOSE 8080
 
-VOLUME ["/opt/praas-master/data", "/opt/NPI"]
-
 ENTRYPOINT /opt/launch.sh
