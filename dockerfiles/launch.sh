@@ -1,6 +1,4 @@
 #!/bin/bash
-source ~/.bashrc
-
 if [ ! -f /opt/NPI/small.csv ]; then
     cd /opt
     wget -q http://download.cms.gov/nppes/NPPES_Data_Dissemination_October_2016.zip
